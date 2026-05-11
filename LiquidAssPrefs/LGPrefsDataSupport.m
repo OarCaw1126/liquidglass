@@ -893,23 +893,8 @@ NSArray<NSDictionary *> *LGLockscreenItems(void) {
                                      0.0,
                                      120.0,
                                      1)];
-    [items addObject:LGSectionSetting(LGLocalized(@"prefs.section.lockscreen_date_label.title"),
-                                      LGLocalized(@"prefs.section.lockscreen_date_label.subtitle"))];
-    NSMutableDictionary *dateFormatEnabled = [LGSwitchSetting(@"Lockscreen.Clock.DateFormat.Enabled",
-                                                             LGLocalized(@"prefs.control.date_format_enabled"),
-                                                             LGLocalized(@"prefs.subtitle.date_format_enabled"),
-                                                             YES) mutableCopy];
-    dateFormatEnabled[@"controls_following_panel"] = @YES;
-    [items addObject:[dateFormatEnabled copy]];
-    [items addObject:LGSettingControlledByKey(LGStringSetting(@"Lockscreen.Clock.DateFormat.Format",
-                                                             LGLocalized(@"prefs.control.date_format"),
-                                                             LGLocalized(@"prefs.subtitle.date_format"),
-                                                             @"EEE MMM d",
-                                                             @"EEE MMM d"),
-                                             @"Lockscreen.Clock.DateFormat.Enabled",
-                                             @YES)];
+    [items addObject:LGSpacerSetting(8.0, 0.0)];
     if (LGIsAtLeastiOS16()) {
-        [items addObject:LGSectionSetting(@"", @"")];
         [items addObject:LGSettingControlledByKey(LGSwitchSetting(@"Lockscreen.Clock.VariableFont.Enabled",
                                                                   LGLocalized(@"prefs.control.variable_font"),
                                                                   LGLocalized(@"prefs.subtitle.variable_font"),
@@ -964,7 +949,6 @@ NSArray<NSDictionary *> *LGLockscreenItems(void) {
     }
 
     if (!LGIsAtLeastiOS16()) {
-        [items addObject:LGSectionSetting(@"", @"")];
         NSMutableDictionary *legacyFontStyleItem = [LGSettingControlledByKey(LGMenuSetting(@"Lockscreen.Clock.LegacyFontStyle",
                                                                                             LGLocalized(@"prefs.control.font_style"),
                                                                                             LGLocalized(@"prefs.subtitle.font_style"),
@@ -1071,10 +1055,26 @@ NSArray<NSDictionary *> *LGLockscreenItems(void) {
                                                                                                 0),
                                                                                @"Lockscreen.Clock.Enabled",
                                                                                @YES),
-                                                      @"Lockscreen.Clock.LegacyFontStyle",
-                                                      @"current",
-                                                      @[@"ios26"])];
+                                                     @"Lockscreen.Clock.LegacyFontStyle",
+                                                     @"current",
+                                                     @[@"ios26"])];
     }
+
+    [items addObject:LGSectionSetting(LGLocalized(@"prefs.section.lockscreen_date_label.title"),
+                                      LGLocalized(@"prefs.section.lockscreen_date_label.subtitle"))];
+    NSMutableDictionary *dateFormatEnabled = [LGSwitchSetting(@"Lockscreen.Clock.DateFormat.Enabled",
+                                                             LGLocalized(@"prefs.control.date_format_enabled"),
+                                                             LGLocalized(@"prefs.subtitle.date_format_enabled"),
+                                                             YES) mutableCopy];
+    dateFormatEnabled[@"controls_following_panel"] = @YES;
+    [items addObject:[dateFormatEnabled copy]];
+    [items addObject:LGSettingControlledByKey(LGStringSetting(@"Lockscreen.Clock.DateFormat.Format",
+                                                             LGLocalized(@"prefs.control.date_format"),
+                                                             LGLocalized(@"prefs.subtitle.date_format"),
+                                                             @"EEE MMM d",
+                                                             @"EEE MMM d"),
+                                             @"Lockscreen.Clock.DateFormat.Enabled",
+                                             @YES)];
 
     return [items copy];
 }

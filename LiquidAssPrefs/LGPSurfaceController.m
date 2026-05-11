@@ -767,6 +767,10 @@ static BOOL LGItemVisibleForCurrentPreferences(NSDictionary *item) {
                 spacer.translatesAutoresizingMaskIntoConstraints = NO;
                 NSNumber *height = item[@"height"];
                 [spacer.heightAnchor constraintEqualToConstant:height ? height.doubleValue : 18.0].active = YES;
+                UIView *previousView = _contentStack.arrangedSubviews.lastObject;
+                if (previousView && height && [_contentStack respondsToSelector:@selector(setCustomSpacing:afterView:)]) {
+                    [_contentStack setCustomSpacing:0.0 afterView:previousView];
+                }
                 [_contentStack addArrangedSubview:spacer];
                 NSNumber *afterSpacing = item[@"after_spacing"];
                 if (afterSpacing && [_contentStack respondsToSelector:@selector(setCustomSpacing:afterView:)]) {
