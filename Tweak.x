@@ -445,6 +445,28 @@ static void LGSetCachedSpringBoardLockImageValue(UIImage *image) {
     LGSetCachedTransientImage(kLGLockWallpaperImageCacheKey, image);
 }
 
+static void LGClearFlattenedWallpaperFilesOnLoad(void) {
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSArray<NSString *> *paths = @[
+        kLGHomescreenWallpaperFlatFilePath,
+        kLGLockscreenWallpaperFlatFilePath,
+    ];
+    for (NSString *path in paths) {
+        if (!path.length || ![fm fileExistsAtPath:path]) continue;
+        NSError *error = nil;
+        if (![fm removeItemAtPath:path error:&error]) {
+            LGLog(@"failed to clear wallpaper cache %@: %@", path.lastPathComponent, error.localizedDescription ?: @"unknown");
+        }
+    }
+
+    LGSetCachedSpringBoardHomeImageValue(nil);
+    LGSetCachedSpringBoardLockImageValue(nil);
+    sCachedSpringBoardHomeMTime = nil;
+    sCachedSpringBoardLockMTime = nil;
+    sCachedSpringBoardHomePath = nil;
+    sCachedSpringBoardLockPath = nil;
+}
+
 static UIImage *LG_loadFlattenedHomescreenWallpaperFile(void) {
     NSString *path = kLGHomescreenWallpaperFlatFilePath;
     NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
@@ -973,7 +995,6 @@ BOOL LG_imageLooksBlack(UIImage *img) {
         if (brightestChannel > 1) return NO;
     }
     return YES;
-    #undef kSampleGrid
 }
 
 static BOOL LG_contextSnapshotLooksIncomplete(UIImage *img) {
@@ -1798,6 +1819,7 @@ static void LG_startDebugMainThreadStallProbe(void) {
           LGMainBundleIdentifier() ?: @"(unknown)",
           LG_PACKAGE_VERSION,
           LG_BUILD_TIMESTAMP);
+    LGClearFlattenedWallpaperFilesOnLoad();
     LG_startDebugMainThreadStallProbe();
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         LGPrewarmPipelines();

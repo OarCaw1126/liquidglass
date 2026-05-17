@@ -38,4 +38,16 @@ This tweak is incomplete, issues WILL happen.
 - there is also a shape mask path used for the lockscreen clock. the shader receives a second texture mask and derives edge behavior from the glyph shape instead of only from a rounded rect
 - the blur is separable and baked in two compute passes, then reused until settings or source content actually require a rebake
 
+## donation
+i only accept crpyto for now, wallet addreses:
+
+BTC: bc1qlv830emqsffqslns2e3kglkgcdnlag0nfnyj4k
+ETH: 0x6245EF47c749D1b5c2830b145cB943a8aD826bea
+LTC: ltc1q7j6vlgvymxdtwm46u0n22h7m4890cexfp22vfm
+DOGE: D76nuR1HWSymSLhFYYhkfpc4JHg1HjvgWD
+SOL: P8U8Bm6DZJFhVcGxSCGhc9cP46KXD5qRwQLRu82EBZg
+TRX: TVuW2KcYBMcr2VAMhYVqYmoT15N3MbZ8eX
+USDC (Polygon): 0x6245EF47c749D1b5c2830b145cB943a8aD826bea
+USDT (Tron/trc-20): TVuW2KcYBMcr2VAMhYVqYmoT15N3MbZ8eX
+
 ### contributions to this tweak are welcomed
