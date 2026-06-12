@@ -131,6 +131,6 @@ jobs:
             **Triggered by:** @${{ github.actor }}
             
             > [!NOTE]
-            > A nightly build is basically the next update partially done. Additionally, this build might contain the old version number but the code itself should has the latest commit.
+            > A nightly build is basically the next update partially done. Additionally, this build might have the old version number but the code itself should has the latest commit.
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
