@@ -6,6 +6,8 @@
 #define kLGBlackImageSampleGrid 16
 #endif
 
+extern CGColorSpaceRef LGSharedRGBColorSpace(void);
+
 static void *kLGSnapshotOriginalOpacityKey = &kLGSnapshotOriginalOpacityKey;
 
 static BOOL LG_imageLooksBlack(UIImage *img) {
@@ -41,7 +43,6 @@ static BOOL LG_imageLooksBlack(UIImage *img) {
 
 static NSNumber *sLockscreenWallpaperIsLight = nil;
 
-// Agregado 'static' al inicio
 static BOOL LG_imageIsLight(UIImage *img) {
     if (!img) return NO;
     CGImageRef cg = img.CGImage;
