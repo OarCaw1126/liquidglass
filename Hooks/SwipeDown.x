@@ -21,23 +21,37 @@
                                                                      wallpaper:nil 
                                                                wallpaperOrigin:CGPointZero];
         overlayView.tag = 2600;
+        
         overlayView.backgroundColor = [UIColor clearColor];
         overlayView.opaque = NO;
+        overlayView.layer.opaque = NO;
+        overlayView.layer.backgroundColor = [UIColor clearColor].CGColor;
         
-        overlayView.blur = 0.0;
+        if ([overlayView respondsToSelector:@selector(setBlur:)]) {
+            overlayView.blur = 0.0;
+        }
+        if ([overlayView respondsToSelector:@selector(setGlassThickness:)]) {
+            overlayView.glassThickness = 0.0;
+        }
+        if ([overlayView respondsToSelector:@selector(setRefractionScale:)]) {
+            overlayView.refractionScale = 0.0;
+        }
         
-        overlayView.glassThickness = 1.0;
-        overlayView.refractionScale = 0.15;
-        overlayView.cornerRadius = 0.0;
-        overlayView.clipsToBounds = YES;
-        overlayView.layer.masksToBounds = YES;
+        // Remover subcapas generadas internamente que agregan desenfoque o filtros de imagen
+        for (CALayer *layer in overlayView.layer.sublayers) {
+            if ([layer.delegate isKindOfClass:NSClassFromString(@"UIVisualEffectView")] || 
+                [layer.name containsString:@"Blur"] || 
+                [layer.name containsString:@"Filter"]) {
+                [layer removeFromSuperlayer];
+            }
+        }
         
         UILabel *clockLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, self.bounds.size.width, 140)];
-        clockLabel.text = @"19:14";
+        clockLabel.text = @"12:30";
         clockLabel.textAlignment = NSTextAlignmentCenter;
-        clockLabel.font = [UIFont fontWithName:@"HelveticaNeue-UltraLight" size:100];
+        clockLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:100];
         clockLabel.textColor = [UIColor whiteColor];
-        clockLabel.shadowColor = [[UIColor blackColor] colorWithAlphaComponent:0.2];
+        clockLabel.shadowColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
         clockLabel.shadowOffset = CGSizeMake(0, 2);
         
         [overlayView addSubview:clockLabel];
