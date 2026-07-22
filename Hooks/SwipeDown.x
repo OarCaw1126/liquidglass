@@ -1,3 +1,8 @@
+#import "../LiquidGlass.h"
+#import "../Shared/LGHookSupport.h"
+#import "../Shared/LGBannerCaptureSupport.h"
+#import "../Shared/LGPrefAccessors.h"
+#import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <string.h>
@@ -7,6 +12,21 @@
 #endif
 
 extern CGColorSpaceRef LGSharedRGBColorSpace(void);
+
+@interface LiquidGlassView : UIView
+@property (nonatomic, assign) CGFloat blur;
+@property (nonatomic, assign) CGFloat glassThickness;
+@property (nonatomic, assign) CGFloat refractionScale;
+@property (nonatomic, assign) CGFloat cornerRadius;
+@property (nonatomic, assign) NSInteger updateGroup;
+- (instancetype)initWithFrame:(CGRect)frame wallpaper:(UIImage *)wallpaper wallpaperOrigin:(CGPoint)origin;
+@end
+
+extern void LG_registerGlassView(LiquidGlassView *view, NSInteger group);
+extern void LG_unregisterGlassView(LiquidGlassView *view);
+
+@interface SBHomeScreenView : UIView
+@end
 
 static void *kLGSnapshotOriginalOpacityKey = &kLGSnapshotOriginalOpacityKey;
 
