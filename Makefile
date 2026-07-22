@@ -19,6 +19,7 @@ PREF_CONTROL_FILES := LiquidAssPrefs/LGPrefsLiquidSlider.m LiquidAssPrefs/LGPref
 $(TWEAK_NAME)_FILES = Tweak.x $(HOOK_FILES) $(SHARED_FILES) $(RUNTIME_FILES) $(PREF_CONTROL_FILES)
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc -fvisibility=default -DLG_PACKAGE_VERSION=@\"$(LG_PACKAGE_VERSION)\" -DLG_BUILD_TIMESTAMP=@\"$(LG_BUILD_TIMESTAMP)\"
 $(TWEAK_NAME)_FRAMEWORKS = UIKit Metal MetalKit Accelerate CoreMotion CoreLocation
+liquidglass_CFLAGS += -Wno-gnu-folding-constant -Wno-error=gnu-folding-constant -Wno-vla-extension -Wno-error
 
 include $(THEOS)/makefiles/tweak.mk
 SUBPROJECTS += LiquidAssPrefs
