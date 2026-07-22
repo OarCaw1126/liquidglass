@@ -8,6 +8,10 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <string.h>
 
+#ifndef kLGBlackImageSampleGrid
+#define kLGBlackImageSampleGrid 16
+#endif
+
 static void *kLGSnapshotOriginalOpacityKey = &kLGSnapshotOriginalOpacityKey;
 
 BOOL LG_imageLooksBlack(UIImage *img) {
