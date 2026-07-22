@@ -5,107 +5,84 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <string.h>
 
-@interface SBHomeScreenWindow : UIWindow
-@end
+static void *kLGSnapshotOriginalOpacityKey = &kLGSnapshotOriginalOpacityKey;
 
-@interface SwipeDownDelegate : NSObject <UIGestureRecognizerDelegate>
-@end
-
-@implementation SwipeDownDelegate
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+BOOL LG_imageLooksBlack(UIImage *img) {
+    if (!img) return YES;
+    CGImageRef cg = img.CGImage;
+    if (!cg) return YES;
+    
+    int total_px_1 = kLGBlackImageSampleGrid * kLGBlackImageSampleGrid * 4;
+    unsigned char px[total_px_1];
+    memset(px, 0, total_px_1);
+    
+    CGContextRef ctx = CGBitmapContextCreate(px,
+                                             kLGBlackImageSampleGrid,
+                                             kLGBlackImageSampleGrid,
+                                             8,
+                                             kLGBlackImageSampleGrid * 4,
+                                             LGSharedRGBColorSpace(),
+        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    if (!ctx) return YES;
+    CGContextDrawImage(ctx, CGRectMake(0, 0, kLGBlackImageSampleGrid, kLGBlackImageSampleGrid), cg);
+    CGContextRelease(ctx);
+    NSUInteger sampleCount = kLGBlackImageSampleGrid * kLGBlackImageSampleGrid;
+    uint8_t brightestChannel = 0;
+    for (NSUInteger i = 0; i < sampleCount; i++) {
+        uint8_t r = px[i * 4];
+        uint8_t g = px[i * 4 + 1];
+        uint8_t b = px[i * 4 + 2];
+        brightestChannel = MAX(brightestChannel, MAX(r, MAX(g, b)));
+        if (brightestChannel > 1) return NO;
+    }
     return YES;
 }
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-    return YES; 
-}
-@end
 
-static SwipeDownDelegate *gestureDelegate;
+static NSNumber *sLockscreenWallpaperIsLight = nil;
 
-%hook SBHomeScreenWindow
+BOOL LG_imageIsLight(UIImage *img) {
+    if (!img) return NO;
+    CGImageRef cg = img.CGImage;
+    if (!cg) return NO;
 
-- (void)setHidden:(BOOL)hidden {
-    %orig;
+    const size_t grid = 16;
+    int total_px_2 = grid * grid * 4;
+    unsigned char px[total_px_2];
+    memset(px, 0, total_px_2);
     
-    if (!hidden && ![self viewWithTag:2600]) {
-        if (!gestureDelegate) {
-            gestureDelegate = [[SwipeDownDelegate alloc] init];
+    CGContextRef ctx = CGBitmapContextCreate(px,
+                                             grid,
+                                             grid,
+                                             8,
+                                             grid * 4,
+                                             LGSharedRGBColorSpace(),
+        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    if (!ctx) return NO;
+    CGContextDrawImage(ctx, CGRectMake(0, 0, grid, grid), cg);
+    CGContextRelease(ctx);
+
+    NSUInteger sampleCount = grid * grid;
+    NSUInteger lightPixels = 0;
+    double totalLuminance = 0.0;
+
+    for (NSUInteger i = 0; i < sampleCount; i++) {
+        uint8_t r = px[i * 4];
+        uint8_t g = px[i * 4 + 1];
+        uint8_t b = px[i * 4 + 2];
+
+        double luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
+        totalLuminance += luminance;
+
+        if (luminance > 0.65) {
+            lightPixels++;
         }
-
-        UISwipeGestureRecognizer *swipeDown = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleLiquidSwipe27:)];
-        swipeDown.direction = UISwipeGestureRecognizerDirectionDown;
-        swipeDown.delegate = gestureDelegate;
-        
-        [self addGestureRecognizer:swipeDown];
     }
+
+    double averageLuminance = totalLuminance / sampleCount;
+    double lightRatio = (double)lightPixels / sampleCount;
+
+    return (averageLuminance > 0.6 || lightRatio > 0.3);
 }
-
-%new
-- (void)handleLiquidSwipe27:(UISwipeGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateEnded) {
-        if ([self viewWithTag:2600]) return;
-
-        CGPoint wallpaperOrigin = CGPointZero;
-        UIImage *wallpaperSnap = nil;
-        
-        if (NSClassFromString(@"LiquidGlassView") != nil) {
-            wallpaperSnap = LG_getHomescreenSnapshot(&wallpaperOrigin);
-        }
-
-        LiquidGlassView *overlayView = [[LiquidGlassView alloc] initWithFrame:self.bounds 
-                                                                     wallpaper:wallpaperSnap 
-                                                               wallpaperOrigin:wallpaperOrigin];
-        overlayView.tag = 2600;
-        
-        overlayView.blur = 25.0;
-        overlayView.glassThickness = 4.0;
-        overlayView.refractionScale = 0.15;
-        overlayView.cornerRadius = 0.0; 
-        overlayView.updateGroup = LGUpdateGroupLockscreen;
-
-        UILabel *clockLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, self.bounds.size.width, 120)];
-        clockLabel.text = @"12:30";
-        clockLabel.textAlignment = NSTextAlignmentCenter;
-        clockLabel.font = [UIFont fontWithName:@"HelveticaNeue-CondensedBold" size:90];
-        clockLabel.textColor = [UIColor systemRedColor];
-        
-        clockLabel.layer.shadowColor = [UIColor blackColor].CGColor;
-        clockLabel.layer.shadowOffset = CGSizeMake(0, 5);
-        clockLabel.layer.shadowOpacity = 0.8;
-        clockLabel.layer.shadowRadius = 4.0;
-        
-        [overlayView addSubview:clockLabel];
-        [self addSubview:overlayView];
-        
-        LG_registerGlassView(overlayView, LGUpdateGroupLockscreen);
-        
-        overlayView.transform = CGAffineTransformMakeTranslation(0, -self.bounds.size.height);
-        
-        [UIView animateWithDuration:0.4 
-                              delay:0 
-             usingSpringWithDamping:0.7 
-              initialSpringVelocity:1.0 
-                            options:UIViewAnimationOptionCurveEaseInOut 
-                         animations:^{
-                             overlayView.transform = CGAffineTransformIdentity;
-                         } completion:nil];
-                         
-        UITapGestureRecognizer *dismissTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissLiquidOverlay27:)];
-        [overlayView addGestureRecognizer:dismissTap];
-    }
-}
-
-%new
-- (void)dismissLiquidOverlay27:(UITapGestureRecognizer *)sender {
-    LiquidGlassView *overlayView = (LiquidGlassView *)sender.view;
-    
-    [UIView animateWithDuration:0.3 animations:^{
-        overlayView.transform = CGAffineTransformMakeTranslation(0, -overlayView.bounds.size.height);
-    } completion:^(BOOL finished) {
-        LG_unregisterGlassView(overlayView, LGUpdateGroupLockscreen);
-        [overlayView removeFromSuperview];
-    }];
-}
-
-%end
