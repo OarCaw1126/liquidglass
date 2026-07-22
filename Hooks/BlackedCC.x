@@ -1,49 +1,48 @@
 #import <UIKit/UIKit.h>
 
-@interface CCUIHeaderPocketView : UIView
+@interface CCUIModuleCollectionView : UIView
 @end
 
-@interface CCUIMainViewController : UIViewController
+@interface CCUIOverlayViews : UIView
 @end
 
-%hook CCUIHeaderPocketView
+%hook CCUIModuleCollectionView
 
 - (void)layoutSubviews {
     %orig;
 
-    UIView *darkBackdrop = [self viewWithTag:99903];
-    if (!darkBackdrop) {
-        darkBackdrop = [[UIView alloc] initWithFrame:self.bounds];
-        darkBackdrop.tag = 99903;
-        darkBackdrop.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.60];
-        darkBackdrop.userInteractionEnabled = NO;
-        darkBackdrop.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [self insertSubview:darkBackdrop atIndex:0];
+    UIView *darkOverlay = [self viewWithTag:99905];
+    if (!darkOverlay) {
+        darkOverlay = [[UIView alloc] initWithFrame:self.bounds];
+        darkOverlay.tag = 99905;
+        darkOverlay.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.50];
+        darkOverlay.userInteractionEnabled = NO;
+        darkOverlay.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [self insertSubview:darkOverlay atIndex:0];
     } else {
-        darkBackdrop.frame = self.bounds;
+        darkOverlay.frame = self.bounds;
+        [self sendSubviewToBack:darkOverlay];
     }
 }
 
 %end
 
-%hook CCUIMainViewController
+%hook CCUIOverlayViews
 
-- (void)viewDidLayoutSubviews {
+- (void)layoutSubviews {
     %orig;
 
-    UIView *mainView = self.view;
-    UIView *bgOverlay = [mainView viewWithTag:99904];
-    if (!bgOverlay) {
-        bgOverlay = [[UIView alloc] initWithFrame:mainView.bounds];
-        bgOverlay.tag = 99904;
-        bgOverlay.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.60];
-        bgOverlay.userInteractionEnabled = NO;
-        bgOverlay.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        
-        [mainView insertSubview:bgOverlay atIndex:0];
+    UIView *darkOverlay = [self viewWithTag:99906];
+    if (!darkOverlay) {
+        darkOverlay = [[UIView alloc] initWithFrame:self.bounds];
+        darkOverlay.tag = 99906;
+        darkOverlay.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.50];
+        darkOverlay.userInteractionEnabled = NO;
+        darkOverlay.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [self insertSubview:darkOverlay atIndex:0];
     } else {
-        bgOverlay.frame = mainView.bounds;
-        [mainView sendSubviewToBack:bgOverlay];
+        darkOverlay.frame = self.bounds;
+        [self sendSubviewToBack:darkOverlay];
     }
 }
 
