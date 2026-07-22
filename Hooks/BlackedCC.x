@@ -1,25 +1,49 @@
-#import <UIKit/UIKit.h>
+#import <UIKit/UIKit.dylib>
 
-@interface CCUIOverlayViews : UIView
+@interface CCUIHeaderPocketView : UIView
 @end
 
-%hook CCUIOverlayViews
+@interface CCUIMainViewController : UIViewController
+@end
+
+%hook CCUIHeaderPocketView
 
 - (void)layoutSubviews {
     %orig;
 
-    UIView *darkBackgroundOverlay = [self viewWithTag:99901];
-    
-    if (!darkBackgroundOverlay) {
-        darkBackgroundOverlay = [[UIView alloc] initWithFrame:self.bounds];
-        darkBackgroundOverlay.tag = 99901;
-        darkBackgroundOverlay.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.50]; 
-        darkBackgroundOverlay.userInteractionEnabled = NO;
-        darkBackgroundOverlay.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        
-        [self insertSubview:darkBackgroundOverlay atIndex:0];
+    UIView *darkBackdrop = [self viewWithTag:99903];
+    if (!darkBackdrop) {
+        darkBackdrop = [[UIView alloc] initWithFrame:self.bounds];
+        darkBackdrop.tag = 99903;
+        darkBackdrop.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.60];
+        darkBackdrop.userInteractionEnabled = NO;
+        darkBackdrop.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [self insertSubview:darkBackdrop atIndex:0];
     } else {
-        darkBackgroundOverlay.frame = self.bounds;
+        darkBackdrop.frame = self.bounds;
+    }
+}
+
+%end
+
+%hook CCUIMainViewController
+
+- (void)viewDidLayoutSubviews {
+    %orig;
+
+    UIView *mainView = self.view;
+    UIView *bgOverlay = [mainView viewWithTag:99904];
+    if (!bgOverlay) {
+        bgOverlay = [[UIView alloc] initWithFrame:mainView.bounds];
+        bgOverlay.tag = 99904;
+        bgOverlay.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.60];
+        bgOverlay.userInteractionEnabled = NO;
+        bgOverlay.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        
+        [mainView insertSubview:bgOverlay atIndex:0];
+    } else {
+        bgOverlay.frame = mainView.bounds;
+        [mainView sendSubviewToBack:bgOverlay];
     }
 }
 
