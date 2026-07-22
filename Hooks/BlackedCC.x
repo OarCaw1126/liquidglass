@@ -1,4 +1,4 @@
-#import <UIKit/UIKit.dylib>
+#import <UIKit/UIKit.h>
 
 @interface CCUIHeaderPocketView : UIView
 @end
