@@ -1,9 +1,3 @@
-#import "../LiquidGlass.h"
-#import "../Shared/LGBannerCaptureSupport.h"
-#import "../Shared/LGHookSupport.h"
-#import "../Shared/LGSharedSupport.h"
-#import <QuartzCore/QuartzCore.h>
-#import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <string.h>
@@ -14,7 +8,7 @@
 
 static void *kLGSnapshotOriginalOpacityKey = &kLGSnapshotOriginalOpacityKey;
 
-BOOL LG_imageLooksBlack(UIImage *img) {
+static BOOL LG_imageLooksBlack(UIImage *img) {
     if (!img) return YES;
     CGImageRef cg = img.CGImage;
     if (!cg) return YES;
@@ -47,7 +41,8 @@ BOOL LG_imageLooksBlack(UIImage *img) {
 
 static NSNumber *sLockscreenWallpaperIsLight = nil;
 
-BOOL LG_imageIsLight(UIImage *img) {
+// Agregado 'static' al inicio
+static BOOL LG_imageIsLight(UIImage *img) {
     if (!img) return NO;
     CGImageRef cg = img.CGImage;
     if (!cg) return NO;
