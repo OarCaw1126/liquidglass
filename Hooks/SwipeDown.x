@@ -17,6 +17,13 @@
     if (sender.state == UIGestureRecognizerStateEnded) {
         if ([self viewWithTag:2600]) return;
 
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:NSClassFromString(@"UIVisualEffectView")] || 
+                [NSStringFromClass([subview class]) containsString:@"Backdrop"]) {
+                subview.hidden = YES;
+            }
+        }
+
         LiquidGlassView *overlayView = [[LiquidGlassView alloc] initWithFrame:self.bounds 
                                                                      wallpaper:nil 
                                                                wallpaperOrigin:CGPointZero];
@@ -37,7 +44,6 @@
             overlayView.refractionScale = 0.0;
         }
         
-        // Remover subcapas generadas internamente que agregan desenfoque o filtros de imagen
         for (CALayer *layer in overlayView.layer.sublayers) {
             if ([layer.delegate isKindOfClass:NSClassFromString(@"UIVisualEffectView")] || 
                 [layer.name containsString:@"Blur"] || 
@@ -84,9 +90,23 @@
                      animations:^{
                          overlayView.transform = CGAffineTransformMakeTranslation(0, -self.bounds.size.height);
                      } completion:^(BOOL finished) {
+                         for (UIView *subview in self.subviews) {
+                             if ([subview isKindOfClass:NSClassFromString(@"UIVisualEffectView")] || 
+                                 [NSStringFromClass([subview class]) containsString:@"Backdrop"]) {
+                                 subview.hidden = NO;
+                             }
+                         }
                          LG_unregisterGlassView(overlayView, 0);
                          [overlayView removeFromSuperview];
                      }];
+}
+
+%end
+
+%hook SBWallpaperController
+
+- (void)setHomescreenBlurRadius:(double)radius {
+    %orig(0.0);
 }
 
 %end
